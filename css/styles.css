@@ -55,6 +55,9 @@ input:focus,textarea:focus,.select:focus{outline:none;border-color:var(--accent)
 .filedrop:hover,.filedrop.drag{border-color:var(--accent);background:var(--select)}
 .filedrop.loaded{border-style:solid;border-color:var(--accent);color:var(--text)}
 .fd-icon{font-size:22px}
+.or-sep{text-align:center;color:var(--muted);font-size:13px;margin:12px 0;position:relative}
+.url-row{display:flex;gap:8px}
+.url-row input{flex:1}
 
 /* app */
 .topbar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--surface);

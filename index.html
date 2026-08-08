@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mycro · Ragasiyam vault</title>
   <meta name="description" content="Open and manage your Ragasiyam .vault credentials — entirely in your browser." />
+  <meta name="theme-color" content="#3949AB" />
   <link rel="icon" href="assets/logo.svg" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css" />
   <!-- Argon2id (embedded WASM), vendored locally — no network calls. -->
   <script src="vendor/argon2.umd.min.js"></script>
@@ -28,6 +31,12 @@
         <span class="fd-icon">&#128193;</span>
         <span id="fileName">Choose or drop your <b>.vault</b> file</span>
       </label>
+
+      <div class="or-sep">or</div>
+      <div class="url-row">
+        <input type="text" id="urlInput" placeholder="paste a OneDrive / direct .vault URL" />
+        <button type="button" class="btn ghost" id="fetchBtn">Load</button>
+      </div>
 
       <div class="field">
         <label id="secretLabel">Master password</label>
@@ -103,5 +112,10 @@
   <div id="toast" class="toast" hidden></div>
 
   <script type="module" src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
 </body>
 </html>

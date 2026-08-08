@@ -64,6 +64,42 @@ $('fileInput').addEventListener('change', (e) => { if (e.target.files[0]) setFil
 }));
 $('fileDrop').addEventListener('drop', (e) => { if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
 
+// Load a vault from a URL (OneDrive share or direct link).
+function resolveDownloadUrl(url) {
+  const l = url.toLowerCase();
+  const share = l.includes('1drv.ms') || l.includes('onedrive.live.com') || l.includes('sharepoint.com');
+  if (share && !l.includes('/shares/')) {
+    const enc = btoa(url).replace(/=+$/, '').replace(/\//g, '_').replace(/\+/g, '-');
+    return `https://api.onedrive.com/v1.0/shares/u!${enc}/root/content`;
+  }
+  return url;
+}
+async function loadFromUrl() {
+  const url = $('urlInput').value.trim();
+  const err = $('unlockError'); err.hidden = true;
+  if (!url) return;
+  const btn = $('fetchBtn'); const old = btn.textContent; btn.disabled = true; btn.textContent = 'Loading…';
+  try {
+    const resp = await fetch(resolveDownloadUrl(url), { redirect: 'follow' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    if (!text.includes('RAGASIYAM-VAULT')) throw new Error('that URL did not return a Ragasiyam vault');
+    state.fileText = text;
+    state.fileName = (url.split('?')[0].split('/').pop()) || 'vault.vault';
+    $('fileDrop').classList.add('loaded');
+    $('fileName').innerHTML = `Loaded from URL: <b>${escapeHtml(state.fileName)}</b>`;
+    toast('Vault loaded — now enter your password');
+    $('secret').focus();
+  } catch (e) {
+    err.textContent = `Could not load from URL (${e.message}). Some links (e.g. OneDrive) block cross-site download — in that case download the file and use “Choose file”.`;
+    err.hidden = false;
+  } finally {
+    btn.disabled = false; btn.textContent = old;
+  }
+}
+$('fetchBtn').addEventListener('click', loadFromUrl);
+$('urlInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadFromUrl(); });
+
 // ---------- unlock ----------
 $('toggleSecret').addEventListener('click', () => {
   const el = $('secret');
