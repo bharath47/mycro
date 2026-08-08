@@ -138,6 +138,39 @@ export function makeEntry(data) {
   };
 }
 
+// ---- Creating a brand-new vault in the browser (matches vault.py create) ----
+
+export function generateRecoveryKey() {
+  const A = RECOVERY_ALPHABET;
+  const pick = () => A[crypto.getRandomValues(new Uint32Array(1))[0] % A.length];
+  const groups = [];
+  for (let g = 0; g < 8; g++) groups.push(Array.from({ length: 5 }, pick).join(''));
+  return groups.join('-');
+}
+
+async function makeWrap(secretBytes, dek) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const kek = await deriveKek(secretBytes, salt);
+  const { nonce, ct } = await gcmEncrypt(kek, dek);
+  return { salt: bytesToB64(salt), sealed: { nonce: bytesToB64(nonce), ct: bytesToB64(ct) } };
+}
+
+// Returns { vault, recoveryKey }. The recovery key is shown once, never stored.
+export async function createVault(masterPassword) {
+  const dek = crypto.getRandomValues(new Uint8Array(32));
+  const recoveryKey = generateRecoveryKey();
+  const wraps = {
+    master: await makeWrap(enc.encode(masterPassword), dek),
+    recovery: await makeWrap(normalizeRecovery(recoveryKey), dek),
+  };
+  const doc = {
+    magic: 'RAGASIYAM-VAULT', version: 1,
+    kdf: { type: 'argon2id', time_cost: 3, memory_cost: 65536, parallelism: 4 },
+    wraps, vault: { nonce: '', ct: '' },
+  };
+  return { vault: new Vault(doc, dek, []), recoveryKey };
+}
+
 export function generatePassword(length = 20) {
   const pools = [
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ',

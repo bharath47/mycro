@@ -91,6 +91,8 @@ input:focus,textarea:focus,.select:focus{outline:none;border-color:var(--accent)
 .grid > label{color:var(--muted);font-size:13px}
 .grid .pw-row{grid-column:2}
 .modal-actions{display:flex;align-items:center;gap:8px;margin-top:18px}
+.reco{background:var(--select);border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+  font-family:Consolas,monospace;font-size:16px;letter-spacing:.03em;white-space:pre-wrap;word-break:break-all;margin:8px 0}
 
 /* toast */
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--text);

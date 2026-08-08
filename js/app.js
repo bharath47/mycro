@@ -1,5 +1,5 @@
 // app.js — UI for mycro (browser Ragasiyam vault manager).
-import { Vault, VaultError, makeEntry, generatePassword } from './vault.js';
+import { Vault, VaultError, makeEntry, generatePassword, createVault } from './vault.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -99,6 +99,54 @@ async function loadFromUrl() {
 }
 $('fetchBtn').addEventListener('click', loadFromUrl);
 $('urlInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadFromUrl(); });
+
+// ---------- create a new vault ----------
+function passwordStrength(pw) {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (pw.length >= 14) s++;
+  const classes = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((r) => r.test(pw)).length;
+  return Math.min(s + Math.max(0, classes - 1), 4);
+}
+$('toCreate').addEventListener('click', (e) => { e.preventDefault(); $('openMode').hidden = true; $('createMode').hidden = false; $('cPw1').focus(); });
+$('toOpen').addEventListener('click', (e) => { e.preventDefault(); $('createMode').hidden = true; $('openMode').hidden = false; });
+$('cPw1').addEventListener('input', () => {
+  const labels = ['Very weak', 'Weak', 'Fair', 'Good', 'Strong'];
+  const v = $('cPw1').value;
+  $('cStrength').textContent = v ? `Strength: ${labels[passwordStrength(v)]}` : '';
+});
+$('cPw2').addEventListener('keydown', (e) => { if (e.key === 'Enter') doCreate(); });
+$('createBtn').addEventListener('click', doCreate);
+
+async function doCreate() {
+  const err = $('createError'); err.hidden = true;
+  const pw = $('cPw1').value, pw2 = $('cPw2').value;
+  if (pw.length < 8) { err.textContent = 'Master password must be at least 8 characters.'; err.hidden = false; return; }
+  if (pw !== pw2) { err.textContent = 'Passwords do not match.'; err.hidden = false; return; }
+  const btn = $('createBtn'); btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const { vault, recoveryKey } = await createVault(pw);
+    state.vault = vault;
+    state.fileName = 'ragasiyam.vault';
+    showRecovery(recoveryKey, () => {
+      $('cPw1').value = ''; $('cPw2').value = ''; $('cStrength').textContent = '';
+      $('openName').textContent = state.fileName + ' (new)';
+      renderFilters(); render(); show('app');
+      toast('New vault ready — add entries, then Download to save the file');
+    });
+  } catch (e) {
+    err.textContent = `Could not create vault: ${e}`; err.hidden = false;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create vault';
+  }
+}
+
+function showRecovery(key, onDone) {
+  $('recoveryText').textContent = key;
+  $('recoveryModal').hidden = false;
+  $('recoCopy').onclick = async () => { try { await navigator.clipboard.writeText(key); toast('Recovery key copied'); } catch { /* ignore */ } };
+  $('recoDone').onclick = () => { $('recoveryModal').hidden = true; onDone(); };
+}
 
 // ---------- unlock ----------
 $('toggleSecret').addEventListener('click', () => {

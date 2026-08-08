@@ -26,6 +26,7 @@
         </div>
       </div>
 
+      <div id="openMode">
       <label class="filedrop" id="fileDrop">
         <input type="file" id="fileInput" accept=".vault,application/json" hidden />
         <span class="fd-icon">&#128193;</span>
@@ -51,9 +52,29 @@
       <p id="unlockError" class="error" hidden></p>
 
       <button class="btn accent full" id="unlockBtn">Unlock</button>
+      <p class="center-text"><a href="#" id="toCreate">First time here? Create a new vault &rarr;</a></p>
       <p class="muted tiny center-text">
         100% private — the file is read and decrypted only in your browser. Nothing is uploaded.
       </p>
+      </div><!-- /openMode -->
+
+      <div id="createMode" hidden>
+        <div class="field">
+          <label>Master password</label>
+          <input type="password" id="cPw1" placeholder="Choose a strong password" />
+        </div>
+        <div class="field">
+          <label>Confirm password</label>
+          <input type="password" id="cPw2" placeholder="Re-enter password" />
+        </div>
+        <p id="cStrength" class="muted tiny"></p>
+        <p id="createError" class="error" hidden></p>
+        <button class="btn accent full" id="createBtn">Create vault</button>
+        <p class="center-text"><a href="#" id="toOpen">&larr; Open an existing vault</a></p>
+        <p class="muted tiny center-text">
+          Your master password is never stored. You'll be shown a one-time recovery key.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -110,6 +131,21 @@
   </div>
 
   <div id="toast" class="toast" hidden></div>
+
+  <!-- ============ RECOVERY KEY ============ -->
+  <div id="recoveryModal" class="modal" hidden>
+    <div class="modal-card">
+      <h2>Your recovery key</h2>
+      <p class="error">Write this down and keep it somewhere safe and OFFLINE. It's the only
+        way to unlock your vault if you forget your master password — and it's shown only once.</p>
+      <pre id="recoveryText" class="reco"></pre>
+      <div class="modal-actions">
+        <button class="btn ghost" id="recoCopy">Copy</button>
+        <span class="spacer"></span>
+        <button class="btn accent" id="recoDone">I've saved it</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="js/app.js"></script>
   <script>
