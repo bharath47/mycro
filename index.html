@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mycro · Ragasiyam vault</title>
+  <meta name="description" content="Open and manage your Ragasiyam .vault credentials — entirely in your browser." />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Argon2id (embedded WASM), vendored locally — no network calls. -->
+  <script src="vendor/argon2.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ============ UNLOCK ============ -->
+  <section id="unlockScreen" class="center">
+    <div class="card unlock">
+      <div class="brand">
+        <div class="logo">&#2949;</div>
+        <div>
+          <h1>mycro</h1>
+          <p class="muted">Open your Ragasiyam vault, right here in the browser.</p>
+        </div>
+      </div>
+
+      <label class="filedrop" id="fileDrop">
+        <input type="file" id="fileInput" accept=".vault,application/json" hidden />
+        <span class="fd-icon">&#128193;</span>
+        <span id="fileName">Choose or drop your <b>.vault</b> file</span>
+      </label>
+
+      <div class="field">
+        <label id="secretLabel">Master password</label>
+        <div class="pw-row">
+          <input type="password" id="secret" autocomplete="off" placeholder="Enter to unlock" />
+          <button type="button" class="btn ghost small" id="toggleSecret">Show</button>
+        </div>
+      </div>
+
+      <label class="check"><input type="checkbox" id="useRecovery" /> Use recovery key instead</label>
+
+      <p id="unlockError" class="error" hidden></p>
+
+      <button class="btn accent full" id="unlockBtn">Unlock</button>
+      <p class="muted tiny center-text">
+        100% private — the file is read and decrypted only in your browser. Nothing is uploaded.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ APP ============ -->
+  <section id="appScreen" hidden>
+    <header class="topbar">
+      <div class="brand small">
+        <div class="logo sm">&#2949;</div>
+        <div><b>mycro</b> <span class="muted" id="openName"></span></div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="downloadBtn" title="Download the updated encrypted vault">Download vault</button>
+      <button class="btn ghost" id="lockBtn">Lock</button>
+    </header>
+
+    <div class="toolbar">
+      <button class="btn accent" id="addBtn">Add</button>
+      <input type="search" id="search" placeholder="Search title, username, URL, persona…" />
+      <select id="catFilter" class="select"><option>All</option></select>
+      <select id="personaFilter" class="select"><option>All</option></select>
+    </div>
+
+    <div id="list" class="list"></div>
+  </section>
+
+  <!-- ============ ENTRY MODAL ============ -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card">
+      <h2 id="modalTitle">Entry</h2>
+      <div class="grid">
+        <label>Title</label><input id="mTitle" type="text" />
+        <label>Category</label><input id="mCategory" type="text" list="catList" />
+        <label>Persona</label><input id="mPersona" type="text" list="personaList" />
+        <label>Username</label><input id="mUsername" type="text" />
+        <label>Password</label>
+        <div class="pw-row">
+          <input id="mPassword" type="password" />
+          <button type="button" class="btn ghost small" id="mToggle">Show</button>
+          <button type="button" class="btn ghost small" id="mGen">Generate</button>
+        </div>
+        <label>URL</label><input id="mUrl" type="text" />
+        <label>Notes</label><textarea id="mNotes" rows="3"></textarea>
+      </div>
+      <datalist id="catList"></datalist>
+      <datalist id="personaList"></datalist>
+      <p id="modalError" class="error" hidden></p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="mDelete">Delete</button>
+        <span class="spacer"></span>
+        <button class="btn ghost" id="mCancel">Cancel</button>
+        <button class="btn accent" id="mSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

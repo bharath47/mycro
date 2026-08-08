@@ -1,0 +1,5 @@
+# Never commit real vault files or personal data
+*.vault
+_test.*
+.DS_Store
+Thumbs.db
